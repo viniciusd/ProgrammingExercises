@@ -30,9 +30,9 @@ canto inferior direito.
 
 F X Y C
 Preenche a região com a cor C. A região R é definida da seguinte forma:
-O pixel (X,Y) pertence à região. Outro pixel pertence à região, se e somente se,
-ele tiver a mesma cor que o pixel (X,Y) e tiver pelo menos um lado em comum com
-um pixel pertencente à região.
+O pixel (X,Y) pertence à região. Outro pixel pertence à região se, e somente
+se, ele tiver a mesma cor que o pixel (X,Y) e tiver pelo menos um lado em
+comum comum pixel pertencente à região.
 
 S Name
 Escreve a imagem em um arquivo de nome Name.
@@ -98,4 +98,4 @@ RRRRRRRRRR
 """
 
 if __name__ == '__main__':
-    editor_grafico.main()
+    editor_grafico.main().cmdloop()
