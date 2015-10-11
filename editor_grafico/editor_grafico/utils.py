@@ -1,21 +1,35 @@
+import copy
+
 class Utils(object):
 
     matriz = []
 
-    def criar(M, N):
+    def criar(self, M, N):
+        self.matriz = [[0]*N for i in range(M)]
+
+    def limpar(self):
+        try:
+            self.matriz = [[0]*len(self.matriz[0])]*len(self.matriz)
+        except IndexError:
+            pass
+
+    def colorir(self, x, y, c):
+        try:
+            self.matriz[x][y] = c
+        except IndexError:
+            pass
+
+    def desenhar_retangulo(self, linhas, colunas, x, y, cor):
+        matriz = copy.deepcopy(self.matriz)
+        try:
+            if linhas > 0 and 0 < colunas < len(self.matriz[0]) and x >= 0 and y >= 0:
+                for i in range(linhas):
+                    self.matriz[x+i][y:y+colunas] = [cor]*colunas
+        except IndexError:
+            self.matriz = matriz
+
+    def preencher_regiao(self):
         pass
 
-    def limpar():
-        pass
-
-    def colorir():
-        pass
-
-    def desenhar_retangulo():
-        pass
-
-    def preencher_regiao():
-        pass
-
-    def salvar():
+    def salvar(self):
         pass

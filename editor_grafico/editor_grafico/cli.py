@@ -5,7 +5,7 @@ from . import utils
 class Main(cmd.Cmd):
 
     prompt = ""
-    utils = utils.Utils
+    utils = utils.Utils()
 
     def split_line(arguments):
         def command(do):
@@ -18,12 +18,14 @@ class Main(cmd.Cmd):
 
     @split_line(2)
     def do_I(self, line):
-        "Create a matrix"
-        self.utils.criar(line[0], line[1])
+        try:
+            self.utils.criar(int(line[0]), int(line[1]))
+        except ValueError:
+            pass
 
     @split_line(0)
     def do_C(self, line):
-        pass
+        self.utils.limpar()
 
     @split_line(3)
     def do_L(self, line):

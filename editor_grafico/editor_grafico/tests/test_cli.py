@@ -39,5 +39,23 @@ class TestCliCalls(unittest.TestCase):
         self.decorated(self.self_mock, "1 2")
         self.assertFalse(self.do_mock.called)
 
+    def test_do_I_quando_com_argumentos_numericos(self):
+        test_cli = cli.Main()
+        test_cli.utils.criar = mock.MagicMock()
+        test_cli.onecmd('I 1 2')
+        self.assertTrue(test_cli.utils.criar.called)
+
+    def test_do_I_quando_com_argumento_nao_numerico(self):
+        test_cli = cli.Main()
+        test_cli.utils.criar = mock.MagicMock()
+        test_cli.onecmd('I 1 A')
+        self.assertFalse(test_cli.utils.criar.called)
+
+    def test_do_C(self):
+        test_cli = cli.Main()
+        test_cli.utils.limpar = mock.MagicMock()
+        test_cli.onecmd('C')
+        self.assertTrue(test_cli.utils.limpar.called)
+
 if __name__ == '__main__':
     unittest.main()
