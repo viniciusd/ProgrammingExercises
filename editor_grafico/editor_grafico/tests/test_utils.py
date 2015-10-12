@@ -1,4 +1,5 @@
 #!/usr/local/bin/python3.4
+import io
 import unittest
 from unittest import mock
 from editor_grafico import cli, utils
@@ -29,17 +30,6 @@ class TestUtils(unittest.TestCase):
         matriz_2x3 = self.matriz(2, 3)
         self.utils.matriz = self.matriz(2, 3, val=1)
         self.utils.limpar()
-        self.assertEqual(self.utils.matriz, matriz_2x3)
-
-    def test_colorir_matriz_no_indice_1x1_quando_com_matriz_vazia(self):
-        self.utils.colorir(1, 1, 'A')
-        self.assertEqual(self.utils.matriz, [])
-
-    def test_colorir_matriz_no_indice_1x1_quando_matriz_2x3(self):
-        matriz_2x3 = self.matriz(2, 3)
-        matriz_2x3[1][1] = 'A'
-        self.utils.matriz = self.matriz(2, 3)
-        self.utils.colorir(1, 1, 'A')
         self.assertEqual(self.utils.matriz, matriz_2x3)
 
     def test_desenhar_retangulo_1x2_no_idice_0x1_quando_com_matriz_vazia(self):
@@ -103,6 +93,26 @@ class TestUtils(unittest.TestCase):
         self.utils.matriz = self.matriz(2, 3)
         self.utils.desenhar_retangulo(1, 2, 0, -1, 'A')
         self.assertEqual(self.utils.matriz, matriz_2x3)
+
+    def test_salvar_matriz_2x3_de_0s(self):
+        output_handle = io.StringIO()
+        matriz_2x3_repr = "000\n000"
+        self.utils.matriz = self.matriz(2, 3)
+        self.utils.salvar(output_handle)
+        output_handle.seek(0)
+        self.assertEqual(output_handle.read(), matriz_2x3_repr)
+
+    def test_salvar_matriz_2x3_colorida_com_As(self):
+        output_handle = io.StringIO()
+        matriz_2x3_repr = "AAA\nAAA"
+        self.utils.matriz = self.matriz(2, 3, val="A")
+        self.utils.salvar(output_handle)
+        output_handle.seek(0)
+        self.assertEqual(output_handle.read(), matriz_2x3_repr)
+
+    def test___repr___quando_com_matriz_2x3_de_0s(self):
+        self.utils.matriz = self.matriz(2, 3)
+        self.assertEqual(str(self.utils), "000\n000")
 
 if __name__ == '__main__':
     unittest.main()
