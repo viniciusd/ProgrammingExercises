@@ -36,7 +36,7 @@ class TestIntegration(unittest.TestCase):
     class MockedCli(editor_grafico.cli.Main):
 
         def __init__(self, id, saved_files):
-            self.id = id 
+            self.id = id
             self.saved_files = saved_files
 
         @staticmethod
@@ -44,9 +44,14 @@ class TestIntegration(unittest.TestCase):
             def io_side_effect(file_name):
                 self = inspect.stack()[3][0].f_locals["self"]
                 try:
-                    self.saved_files[self.id] = {**self.saved_files[self.id], file_name : None}
+                    self.saved_files[self.id] = {
+                                                   **self.saved_files[self.id],
+                                                   file_name: None
+                                                }
                 except KeyError:
-                    self.saved_files[self.id] = {file_name : None}
+                    self.saved_files[self.id] = {
+                                                    file_name: None
+                                                }
                 return mock.DEFAULT
             mocked = mock.Mock()
             mocked.return_value = io.StringIO()
@@ -56,13 +61,17 @@ class TestIntegration(unittest.TestCase):
 
         def do_S(self, *args, **kwargs):
             builtins.open = self.mocked_open()
-            exit = super().do_S(*args, **kwargs )
+            exit = super().do_S(*args, **kwargs)
             for fname in self.saved_files[self.id]:
                 if not self.saved_files[self.id][fname]:
-                    self.saved_files[self.id][fname] = builtins.open.return_value.getvalue()
+                    contents = builtins.open.return_value.getvalue()
+                    self.saved_files[self.id][fname] = contents
                     break
             importlib.reload(builtins)
             return exit
+
+    def read_file(self, name):
+        return self.test_cli.saved_files[self.id()][name]
 
     def setUp(self):
         self.test_cli = self.MockedCli(self.id(), self.saved_files)
@@ -81,9 +90,9 @@ class TestIntegration(unittest.TestCase):
         self.test_cli.onecmd('S two.bmp')
         self.test_cli.onecmd('X')
 
-        one = self.test_cli.saved_files[self.id()]['one.bmp']
-        two = self.test_cli.saved_files[self.id()]['two.bmp']
-        
+        one = self.read_file('one.bmp')
+        two = self.read_file('two.bmp')
+
         self.assertEqual(one, (
                                 "00000\n"
                                 "00000\n"
@@ -116,7 +125,7 @@ class TestIntegration(unittest.TestCase):
         self.test_cli.onecmd('S one.bmp')
         self.test_cli.onecmd('X')
 
-        one = self.test_cli.saved_files[self.id()]['one.bmp']
+        one = self.read_file('one.bmp')
 
         self.assertEqual(one, (
                                 "JJJJJJJJJJ\n"
@@ -130,5 +139,6 @@ class TestIntegration(unittest.TestCase):
                                 "RRRRRRRRRR\n"
                                 )
                          )
+
 if __name__ == '__main__':
     unittest.main()

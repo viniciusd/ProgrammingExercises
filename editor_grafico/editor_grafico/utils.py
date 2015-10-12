@@ -33,7 +33,7 @@ class Utils(object):
 
     def __repr__(self):
         return "\n".join(
-                            ( 
+                            (
                                 "".join(
                                             (str(pixel) for pixel in linha)
                                         )
