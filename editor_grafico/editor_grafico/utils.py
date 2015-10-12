@@ -33,10 +33,10 @@ class Utils(object):
 
     def __repr__(self):
         return "\n".join(
-                            [
+                            ( 
                                 "".join(
-                                            [str(pixel) for pixel in linha]
+                                            (str(pixel) for pixel in linha)
                                         )
                                 for linha in self.matriz
-                            ]
+                            )
                         )
