@@ -5,6 +5,7 @@ import editor_grafico
 import builtins
 import unittest
 import pep8
+import inspect
 from unittest import mock
 
 
@@ -30,31 +31,59 @@ class TestCodeFormat(unittest.TestCase):
 
 class TestIntegration(unittest.TestCase):
 
-    @staticmethod
-    def mocked_open():
-        mocked = mock.Mock()
-        mocked.return_value = io.StringIO()
-        mocked.return_value.close = lambda: None
-        return mocked
+    saved_files = dict()
+
+    class MockedCli(editor_grafico.cli.Main):
+
+        def __init__(self, id, saved_files):
+            self.id = id 
+            self.saved_files = saved_files
+
+        @staticmethod
+        def mocked_open():
+            def io_side_effect(file_name):
+                self = inspect.stack()[3][0].f_locals["self"]
+                try:
+                    self.saved_files[self.id] = {**self.saved_files[self.id], file_name : None}
+                except KeyError:
+                    self.saved_files[self.id] = {file_name : None}
+                return mock.DEFAULT
+            mocked = mock.Mock()
+            mocked.return_value = io.StringIO()
+            mocked.return_value.close = lambda: None
+            mocked.side_effect = io_side_effect
+            return mocked
+
+        def do_S(self, *args, **kwargs):
+            builtins.open = self.mocked_open()
+            exit = super().do_S(*args, **kwargs )
+            for fname in self.saved_files[self.id]:
+                if not self.saved_files[self.id][fname]:
+                    self.saved_files[self.id][fname] = builtins.open.return_value.getvalue()
+                    break
+            importlib.reload(builtins)
+            return exit
 
     def setUp(self):
-        self.test_cli = editor_grafico.cli.Main()
+        self.test_cli = self.MockedCli(self.id(), self.saved_files)
+
+    def tearDown(self):
+        del self.saved_files[self.id()]
 
     def test_entrada_01(self):
         self.test_cli.onecmd('I 5 6')
         self.test_cli.onecmd('L 2 3 A')
-        builtins.open = self.mocked_open()
         self.test_cli.onecmd('S one.bmp')
-        one = builtins.open.return_value.getvalue()
         self.test_cli.onecmd('G 2 3 J')
         self.test_cli.onecmd('V 2 3 4 W')
         self.test_cli.onecmd('H 3 4 2 Z')
         self.test_cli.onecmd('F 3 3 J')
-        builtins.open = self.mocked_open()
         self.test_cli.onecmd('S two.bmp')
-        two = builtins.open.return_value.getvalue()
         self.test_cli.onecmd('X')
 
+        one = self.test_cli.saved_files[self.id()]['one.bmp']
+        two = self.test_cli.saved_files[self.id()]['two.bmp']
+        
         self.assertEqual(one, (
                                 "00000\n"
                                 "00000\n"
@@ -84,10 +113,10 @@ class TestIntegration(unittest.TestCase):
         self.test_cli.onecmd('F 3 3 J')
         self.test_cli.onecmd('K 2 7 8 8 E')
         self.test_cli.onecmd('F 9 9 R')
-        builtins.open = self.mocked_open()
         self.test_cli.onecmd('S one.bmp')
-        one = builtins.open.return_value.getvalue()
         self.test_cli.onecmd('X')
+
+        one = self.test_cli.saved_files[self.id()]['one.bmp']
 
         self.assertEqual(one, (
                                 "JJJJJJJJJJ\n"
